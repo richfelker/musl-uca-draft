@@ -17,6 +17,9 @@ struct ccc_iterator {
 extern const uint16_t toplevel[], secondlevel[];
 extern const unsigned char thirdlevel[], decomp_map[];
 
+/* returns a composite value consisting of the canonical combining class
+ * in the upper 8 bits and the codepoint value in the lower bits. */
+
 uint32_t decomp_iterate(struct decomp_iterator *di)
 {
 	const unsigned char *v;
