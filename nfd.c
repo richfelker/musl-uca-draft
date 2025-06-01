@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <limits.h>
 #include <wchar.h>
+#include <stdint.h>
 
 struct decomp_iterator {
 	const char *src;
@@ -13,13 +14,21 @@ struct ccc_iterator {
 	int cur_ccc;
 };
 
+extern const uint16_t toplevel[], secondlevel[];
+extern const unsigned char thirdlevel[], decomp_map[];
+
 wchar_t decomp_iterate(struct decomp_iterator *di)
 {
 	const unsigned char *v;
+	const uint16_t *u;
+	unsigned hi, mid, low;
+	unsigned min, len;
+	unsigned max;
 	wchar_t wc;
+	unsigned a, b, c;
 
 	if (!di->cur) {
-		unsigned b = *di->src;
+		b = *di->src;
 		if (b < 128) {
 			if (b) di->src++;
 			return b;
@@ -32,18 +41,30 @@ wchar_t decomp_iterate(struct decomp_iterator *di)
 		di->src += l;
 
 		if (wc>=0x30000) return wc;
-		a = toplevel[wc>>6];
-		if (a==0xffff) return wc;
-		v = secondlevel+a;
-		unsigned low = wc & 63;
-		unsigned min = v[0] & 63;
-		unsigned len = v[1] & 63;
-		unsigned max = (v[0]>>6) + (v[1]>>6)*4;
-		unsigned start = v[2] + 256*v[3];
-		v += 4;
-		low -= min;
-		if (low > len || !v[low]) return wc;
-		di->cur = expansions + start + v[low];
+		hi = wc>>12;
+		a = toplevel[hi];
+		if (!a) return wc;
+
+		u = secondlevel + (a-1);
+		min = u[0] & 63;
+		len = u[0] >> 6;
+		mid = ((wc>>6) & 63) - min;
+		u++;
+		if (mid >= len) return wc;
+		a = u[mid];
+		if (!a) return wc;
+
+		v = thirdlevel + (a-1);
+		min = v[0] & 63;
+		len = v[1] & 63;
+		low = (wc & 63) - min;
+		max = (v[0]>>6) + (v[1]>>6)*4;
+		v += 2;
+		if (low >= len) return wc;
+		a = v[low];
+		if (!a) return wc;
+
+		di->cur = v + len + (a-1);
 		di->rem = max;
 	}
 	v = di->cur;
@@ -68,7 +89,7 @@ void decomp_iterator_start(struct decomp_iterator *di, const char *src)
 {
 	di->src = src;
 	di->cur = 0;
-	di->pos = 0;
+	di->rem = 0;
 }
 
 wchar_t ccc_iterate(struct ccc_iterator *ci)
