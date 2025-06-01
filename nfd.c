@@ -17,7 +17,7 @@ struct ccc_iterator {
 extern const uint16_t toplevel[], secondlevel[];
 extern const unsigned char thirdlevel[], decomp_map[];
 
-wchar_t decomp_iterate(struct decomp_iterator *di)
+uint32_t decomp_iterate(struct decomp_iterator *di)
 {
 	const unsigned char *v;
 	const uint16_t *u;
@@ -82,7 +82,7 @@ wchar_t decomp_iterate(struct decomp_iterator *di)
 	}
 	if (!--di->rem || v[0]==0) v = 0;
 	di->cur = v;
-	return wc;
+	return c;
 }
 
 void decomp_iterator_start(struct decomp_iterator *di, const char *src)
@@ -94,6 +94,7 @@ void decomp_iterator_start(struct decomp_iterator *di, const char *src)
 
 wchar_t ccc_iterate(struct ccc_iterator *ci)
 {
+	uint32_t xc;
 	wchar_t wc;
 	int ccc;
 	/* If there's already a sequence of non-starters where we have
@@ -102,8 +103,9 @@ wchar_t ccc_iterate(struct ccc_iterator *ci)
 	 * starter. */
 	if (ci->cur_ccc) {
 		do {
-			wc = decomp_iterate(&ci->di);
-			ccc = cccof(wc);
+			xc = decomp_iterate(&ci->di);
+			wc = xc & 0xffffff;
+			ccc = xc >> 24;
 			if (ccc == ci->cur_ccc) return wc;
 		} while (ccc);
 	}
@@ -116,8 +118,9 @@ wchar_t ccc_iterate(struct ccc_iterator *ci)
 	wchar_t lowest_ccc_wc = WEOF;
 	struct decomp_iterator lowest_ccc_di;
 	do {
-		wc = decomp_iterate(&ci->di);
-		ccc = cccof(wc);
+		xc = decomp_iterate(&ci->di);
+		wc = xc & 0xffffff;
+		ccc = xc >> 24;
 		if (ccc >= next_ccc && ccc < lowest_greater_ccc) {
 			lowest_greater_ccc = ccc;
 			lowest_ccc_di = ci->di;
