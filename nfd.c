@@ -9,7 +9,7 @@ struct decomp_iterator {
 	size_t rem;
 };
 
-struct ccc_iterator {
+struct nfd_iterator {
 	struct decomp_iterator di, di_start;
 	int cur_ccc;
 };
@@ -95,7 +95,7 @@ void decomp_iterator_start(struct decomp_iterator *di, const char *src)
 	di->rem = 0;
 }
 
-wchar_t ccc_iterate(struct ccc_iterator *ci)
+wchar_t nfd_iterate(struct nfd_iterator *ci)
 {
 	uint32_t xc;
 	wchar_t wc;
@@ -145,7 +145,7 @@ wchar_t ccc_iterate(struct ccc_iterator *ci)
 	return lowest_ccc_wc;
 }
 
-void ccc_iterator_start(struct ccc_iterator *ci, const char *src)
+void nfd_iterator_start(struct nfd_iterator *ci, const char *src)
 {
 	decomp_iterator_start(&ci->di_start, src);
 	ci->di = ci->di_start;
