@@ -5,7 +5,7 @@
 struct decomp_iterator {
 	const char *src;
 	const void *cur;
-	size_t pos;
+	size_t rem;
 };
 
 struct ccc_iterator {
@@ -13,23 +13,55 @@ struct ccc_iterator {
 	int cur_ccc;
 };
 
-int cccof(wchar_t);
-const void *find_decomp(wchar_t);
-
 wchar_t decomp_iterate(struct decomp_iterator *di)
 {
+	const unsigned char *v;
+	wchar_t wc;
+
 	if (!di->cur) {
-		wchar_t wc;
+		unsigned b = *di->src;
+		if (b < 128) {
+			if (b) di->src++;
+			return b;
+		}
 		int l = mbtowc(&wc, di->src, MB_LEN_MAX);
 		if (l < 0) {
 			wc = 0xfffd;
 			l = 1;
 		}
 		di->src += l;
-		di->cur = find_decomp(wc);
-		di->pos = 0;
-		if (!di->cur) return wc;
+
+		if (wc>=0x30000) return wc;
+		a = toplevel[wc>>6];
+		if (a==0xffff) return wc;
+		v = secondlevel+a;
+		unsigned low = wc & 63;
+		unsigned min = v[0] & 63;
+		unsigned len = v[1] & 63;
+		unsigned max = (v[0]>>6) + (v[1]>>6)*4;
+		unsigned start = v[2] + 256*v[3];
+		v += 4;
+		low -= min;
+		if (low > len || !v[low]) return wc;
+		di->cur = expansions + start + v[low];
+		di->rem = max;
 	}
+	v = di->cur;
+	if (v[0] < 240) {
+		c = decomp_map[v[0]];
+		if (!(c & 0xffffff))
+			c += wc;
+		v++;
+	} else if (v[0] < 252) {
+		c = decomp_map[(v[0]-240)*240 + v[1]];
+		v += 2;
+	} else {
+		c = (v[0]-252)*65536 + v[1]*256 + v[2];
+		v += 3;
+	}
+	if (!--di->rem || v[0]==0) v = 0;
+	di->cur = v;
+	return wc;
 }
 
 void decomp_iterator_start(struct decomp_iterator *di, const char *src)
