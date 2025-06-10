@@ -30,6 +30,7 @@ int main()
 	unsigned charmap[MAX_CHARMAP] = { 0 };
 	size_t charmap_size = 0;
 	uint16_t *lastlevel_offsets = calloc(sizeof *lastlevel_offsets, 0x110000>>6);
+	uint16_t *secondlevel_offsets = calloc(sizeof *secondlevel_offsets, 0x110000>>12);
 
 	/* read in canonical combining classes and decompositions from ucd */
 	while (fgets(line, sizeof line, stdin)) {
@@ -192,6 +193,33 @@ int main()
 //	printf("total: %zu\n", total);
 //	printf("charmap: %zu\n", 4*charmap_size);
 	if (emit_lastlevel) printf("};\n");
+
+
+	int emit_secondlevel = 1;
+	if (emit_secondlevel) printf("static uint16_t secondlevel[] = {\n");
+
+	total = 0;
+	for (unsigned b=0; b<0x30000>>12; b++) {
+		unsigned min, len;
+		for (i=0; i<64 && !lastlevel_offsets[(b<<6)+i]; i++);
+		min = i;
+		len = 0;
+		for (; i<64; i++)
+			if (lastlevel_offsets[(b<<6)+i]) len=i+1-min;
+		if (!len) continue;
+		secondlevel_offsets[b] = total;
+		if (emit_secondlevel) {
+			printf("\n\t/* %.4x: */ %u,", b<<12, min + ((len-1)<<6));
+			for (i=0; i<63; i++) {
+				if (!(i&7)) printf("\n\t");
+				if (i<min || i>=min+len) printf("      ");
+				else printf("%5u,", lastlevel_offsets[(b<<6)+i]);
+			}
+			printf("\n");
+		}
+	}
+
+	if (emit_secondlevel) printf("};\n");
 
 
 	// show charmap
