@@ -223,6 +223,18 @@ int main()
 	if (emit_secondlevel) printf("};\n");
 
 
+	int emit_toplevel = 1;
+	if (emit_toplevel) {
+		printf("static uint16_t toplevel[] = {");
+		for (unsigned b=0; b<0x30000>>12; b++) {
+			if (!(b&7)) printf("\n\t");
+			printf("%5u,", secondlevel_offsets[b]);
+		}
+		printf("\n");
+		printf("};\n");
+	}
+
+
 	// show charmap
 	if (0) for (i=0; i<charmap_size; i++) {
 		printf("%u\t%.4x (%u)\n", charmap[i]>>24, charmap[i]&0xffffff, char_freq[charmap[i]&0xffffff]);
