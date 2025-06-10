@@ -217,6 +217,7 @@ int main()
 			}
 			printf("\n");
 		}
+		total += 1+len;
 	}
 
 	if (emit_secondlevel) printf("};\n");
