@@ -121,7 +121,7 @@ int main()
 	}
 
 	int emit_lastlevel = 1;
-	if (emit_lastlevel) printf("static unsigned char lastlevel[] = {\n");
+	if (emit_lastlevel) printf("static unsigned char lastlevel[] = {");
 
 	size_t total = 0;
 	for (unsigned b=0; b<0x30000>>6; b++) {
@@ -196,7 +196,7 @@ int main()
 
 
 	int emit_secondlevel = 1;
-	if (emit_secondlevel) printf("static uint16_t secondlevel[] = {\n");
+	if (emit_secondlevel) printf("static uint16_t secondlevel[] = {");
 
 	total = 0;
 	for (unsigned b=0; b<0x30000>>12; b++) {
