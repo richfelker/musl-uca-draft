@@ -52,12 +52,18 @@ int main()
 	/* flatten all decompositions */
 	for (c=0; c<0x110000; c++) {
 		if (!table[c].d1) continue;
+		if (!table[c].d2) {
+			table[c].d[0] = table[c].d1;
+			table[c].dlen = 1;
+			continue;
+		}
 		// expand
 		for (i=0, d=c; table[d].d1; d=table[d].d1) {
 			assert(i < MAX_DECOMP-1);
 			table[c].d[i++] = table[d].d2;
 		}
 		table[c].d[i++] = d;
+		table[c].dlen = i;
 		// reverse
 		for (int j=0; j<i/2; j++) {
 			d = table[c].d[j];
@@ -109,7 +115,78 @@ int main()
 		ccc = table[c].ccc;
 		if (!ccc || table[c].d1) continue;
 		table[c].di[0] = ccc_revmap[ccc];
+		table[c].dlen = 1;
 	}
+
+
+	size_t total = 0;
+	for (unsigned b=0; b<0x30000>>6; b++) {
+		unsigned char block[2+64+(64*4*3)], *expansions=block+2+64;
+		size_t pos = 0;
+		unsigned c0;
+		unsigned min, len, max, dlen;
+		c0 = b<<6;
+		for (i=0; !table[c0+i].dlen && i<64; i++);
+		min = i;
+		len = 0;
+		max = 0;
+		for (; i<64; i++) {
+			if (table[c0+i].dlen) len=i+1-min;
+			if (table[c0+i].dlen > max) max = table[c0+i].dlen;
+		}
+		if (!len) continue;
+		for (i=0; i<len; i++) {
+			dlen = table[c0+min+i].dlen;
+			if (!dlen) {
+				block[2+i] = 0;
+				continue;
+			}
+			block[2+i] = pos+1;
+			for (int j=0; j<dlen; j++) {
+				unsigned di = table[c0+min+i].di[j];
+				if (di < 240) {
+					expansions[pos++] = di;
+				} else if (di < 2880) {
+					expansions[pos++] = di/240 + 240;
+					expansions[pos++] = di%240;
+				} else {
+					expansions[pos++] = (di>>16)+252;
+					expansions[pos++] = di>>8;
+					expansions[pos++] = di;
+				}
+#if 0
+				d = table[c0+min+i].d[j];
+				if (!d) printf("!!!!! %.4x dlen=%d but d[%d]=%.4x\n", c0+min+i, dlen, j, d);
+				if (char_revmap[d] < 240) {
+					expansions[pos++] = char_revmap[d];
+				} else if (char_revmap[d] < 2880) {
+					expansions[pos++] = char_revmap[d]/240 + 240;
+					expansions[pos++] = char_revmap[d]%240;
+				} else {
+					expansions[pos++] = (d>>16)+252;
+					expansions[pos++] = d>>8;
+					expansions[pos++] = d;
+				}
+#endif
+			}
+			if (dlen<max && table[c0+min+1].d[0]) expansions[pos++] = 0;
+		}
+		assert(pos<255);
+		block[0] = min + ((max&3)<<6);
+		block[1] = (len-1) + ((max/4)<<6);
+		memmove(block+2+len, expansions, pos);
+		if (1) {
+			printf("%.4x:", c0);
+			for (i=0; i<2+len+pos; i++)
+				printf(" %.2x", block[i]);
+			puts("");
+		}
+		//if (1) printf("%zu\t%.4x\n", 2+len+pos, c0);
+		total += 2+len+pos;
+	}
+//	printf("total: %zu\n", total);
+//	printf("charmap: %zu\n", 4*charmap_size);
+
 
 	// show charmap
 	if (0) for (i=0; i<charmap_size; i++) {
@@ -150,8 +227,8 @@ int main()
 	}
 
 	// compressed decomp mappings
-	if (1) for (c=0; c<0x110000; c++) {
-		if (!table[c].d[0]) continue;
+	if (0) for (c=0; c<0x110000; c++) {
+		if (!table[c].dlen) continue;
 		printf("%.4x:", c);
 		for (int i=0; i<10 && table[c].di[i]; i++) {
 			unsigned di = table[c].di[i];
@@ -162,7 +239,7 @@ int main()
 				if (charmap[di]>>24)
 					printf("(%u)", charmap[di]>>24);
 			} else {
-				printf(" self(%u)", charmap[di]>>24);
+				printf(" [%u]=self(%u)", di, charmap[di]>>24);
 			}
 		}
 		puts("");
