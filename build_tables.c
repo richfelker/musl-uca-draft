@@ -234,6 +234,17 @@ int main()
 		printf("};\n");
 	}
 
+	int emit_decomp_map = 1;
+	if (emit_decomp_map) {
+		printf("static const uint32_t decomp_map[] = {");
+		for (i=0; i<charmap_size; i++) {
+			if (!(i&3)) printf("\n\t");
+			printf("0x%.8x, ", charmap[i]);
+		}
+		printf("\n");
+		printf("};\n");
+	}
+
 
 	// show charmap
 	if (0) for (i=0; i<charmap_size; i++) {
