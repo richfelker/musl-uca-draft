@@ -50,7 +50,7 @@ uint32_t decomp_iterate(struct decomp_iterator *di)
 
 		u = secondlevel + (a-1);
 		min = u[0] & 63;
-		len = u[0] >> 6;
+		len = (u[0] >> 6) + 1;
 		mid = ((wc>>6) & 63) - min;
 		u++;
 		if (mid >= len) return wc;
@@ -59,7 +59,7 @@ uint32_t decomp_iterate(struct decomp_iterator *di)
 
 		v = thirdlevel + (a-1);
 		min = v[0] & 63;
-		len = v[1] & 63;
+		len = (v[1] & 63) + 1;
 		low = (wc & 63) - min;
 		max = (v[0]>>6) + (v[1]>>6)*4;
 		v += 2;
