@@ -3,17 +3,7 @@
 #include <wchar.h>
 #include <stdint.h>
 
-struct decomp_iterator {
-	const char *src;
-	const void *cur;
-	size_t rem;
-};
-
-struct nfd_iterator {
-	struct decomp_iterator di, di_start;
-	int cur_ccc;
-};
-
+#include "nfd.h"
 #include "decomp.h"
 
 /* returns a composite value consisting of the canonical combining class
