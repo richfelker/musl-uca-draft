@@ -14,8 +14,7 @@ struct nfd_iterator {
 	int cur_ccc;
 };
 
-extern const uint16_t toplevel[], secondlevel[];
-extern const unsigned char thirdlevel[], decomp_map[];
+#include "decomp.h"
 
 /* returns a composite value consisting of the canonical combining class
  * in the upper 8 bits and the codepoint value in the lower bits. */
@@ -57,7 +56,7 @@ uint32_t decomp_iterate(struct decomp_iterator *di)
 		a = u[mid];
 		if (!a) return wc;
 
-		v = thirdlevel + (a-1);
+		v = lastlevel + (a-1);
 		min = v[0] & 63;
 		len = (v[1] & 63) + 1;
 		low = (wc & 63) - min;
