@@ -29,6 +29,7 @@ int main()
 	unsigned *char_freq = calloc(sizeof *char_freq, 0x110000);
 	unsigned charmap[MAX_CHARMAP] = { 0 };
 	size_t charmap_size = 0;
+	uint16_t *lastlevel_offsets = calloc(sizeof *lastlevel_offsets, 0x110000>>6);
 
 	/* read in canonical combining classes and decompositions from ucd */
 	while (fgets(line, sizeof line, stdin)) {
@@ -135,6 +136,7 @@ int main()
 			if (table[c0+i].dlen > max) max = table[c0+i].dlen;
 		}
 		if (!len) continue;
+		lastlevel_offsets[b] = total;
 		for (i=0; i<len; i++) {
 			dlen = table[c0+min+i].dlen;
 			if (!dlen) {
@@ -169,6 +171,7 @@ int main()
 		}
 		//if (1) printf("%zu\t%.4x\n", 2+len+pos, c0);
 		total += 2+len+pos;
+		assert(total <= 0x10000);
 	}
 //	printf("total: %zu\n", total);
 //	printf("charmap: %zu\n", 4*charmap_size);
