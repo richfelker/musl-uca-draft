@@ -119,6 +119,8 @@ int main()
 		table[c].dlen = 1;
 	}
 
+	int emit_lastlevel = 1;
+	if (emit_lastlevel) printf("static unsigned char lastlevel[] = {\n");
 
 	size_t total = 0;
 	for (unsigned b=0; b<0x30000>>6; b++) {
@@ -163,7 +165,21 @@ int main()
 		block[0] = min + ((max&3)<<6);
 		block[1] = (len-1) + ((max/4)<<6);
 		memmove(block+2+len, expansions, pos);
-		if (1) {
+		if (emit_lastlevel) {
+			printf("\n\t/* %.4x: */ %u, %u,", c0, block[0], block[1]);
+			for (i=0; i<min+len; i++) {
+				if (!(i&15)) printf("\n\t");
+				if (i<min || i>=min+len) printf("    ");
+				else printf("%3u,", block[2+i-min]);
+			}
+			printf("\n");
+			for (i=0; i<pos; i++) {
+				if (!(i&15)) printf("\n\t");
+				printf("%3u,", block[2+len+i]);
+			}
+			printf("\n");
+		}
+		if (0) {
 			printf("%.4x:", c0);
 			for (i=0; i<2+len+pos; i++)
 				printf(" %.2x", block[i]);
@@ -175,6 +191,7 @@ int main()
 	}
 //	printf("total: %zu\n", total);
 //	printf("charmap: %zu\n", 4*charmap_size);
+	if (emit_lastlevel) printf("};\n");
 
 
 	// show charmap
