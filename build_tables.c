@@ -139,7 +139,7 @@ int main()
 			if (table[c0+i].dlen > max) max = table[c0+i].dlen;
 		}
 		if (!len) continue;
-		lastlevel_offsets[b] = total;
+		lastlevel_offsets[b] = total+1;
 		for (i=0; i<len; i++) {
 			dlen = table[c0+min+i].dlen;
 			if (!dlen) {
@@ -207,7 +207,7 @@ int main()
 		for (; i<64; i++)
 			if (lastlevel_offsets[(b<<6)+i]) len=i+1-min;
 		if (!len) continue;
-		secondlevel_offsets[b] = total;
+		secondlevel_offsets[b] = total+1;
 		if (emit_secondlevel) {
 			printf("\n\t/* %.4x: */ %u,", b<<12, min + ((len-1)<<6));
 			for (i=0; i<63; i++) {
