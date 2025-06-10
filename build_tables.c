@@ -154,20 +154,6 @@ int main()
 					expansions[pos++] = di>>8;
 					expansions[pos++] = di;
 				}
-#if 0
-				d = table[c0+min+i].d[j];
-				if (!d) printf("!!!!! %.4x dlen=%d but d[%d]=%.4x\n", c0+min+i, dlen, j, d);
-				if (char_revmap[d] < 240) {
-					expansions[pos++] = char_revmap[d];
-				} else if (char_revmap[d] < 2880) {
-					expansions[pos++] = char_revmap[d]/240 + 240;
-					expansions[pos++] = char_revmap[d]%240;
-				} else {
-					expansions[pos++] = (d>>16)+252;
-					expansions[pos++] = d>>8;
-					expansions[pos++] = d;
-				}
-#endif
 			}
 			if (dlen<max && table[c0+min+1].d[0]) expansions[pos++] = 0;
 		}
