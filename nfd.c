@@ -32,6 +32,24 @@ uint32_t decomp_iterate(struct decomp_iterator *di)
 		}
 		di->src += l;
 
+		/* Algorithmic Hangul decomposition */
+		if (wc>=0xac00 && wc<=0xd7a3) {
+			c = wc-0xac00;
+			wc = 0x1100 + c/588;
+			di->cur = di->hbuf;
+			di->rem = 1;
+			di->hbuf[0] = 252;
+			di->hbuf[1] = (0x1161 + (c%588)/28) >> 8;
+			di->hbuf[2] = (0x1161 + (c%588)/28) & 255;
+			if (c%28) {
+				di->hbuf[3] = 252;
+				di->hbuf[4] = (0x11a7 + (c%28)) >> 8;
+				di->hbuf[5] = (0x11a7 + (c%28)) & 255;
+				di->rem = 2;
+			}
+			return wc;
+		}
+
 		if (wc>=0x30000) return wc;
 		hi = wc>>12;
 		a = toplevel[hi];

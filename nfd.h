@@ -7,6 +7,7 @@
 struct decomp_iterator {
 	const char *src;
 	const void *cur;
+	char hbuf[8];
 	size_t rem;
 };
 
