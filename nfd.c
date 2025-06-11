@@ -80,8 +80,11 @@ uint32_t decomp_iterate(struct decomp_iterator *di)
 	v = di->cur;
 	if (v[0] < 240) {
 		c = decomp_map[v[0]];
-		if (!(c & 0xffffff))
+		if (!(c & 0xffffff)) {
 			c += wc;
+			di->cur = 0;
+			return c;
+		}
 		v++;
 	} else if (v[0] < 252) {
 		c = decomp_map[(v[0]-240)*240 + v[1]];
