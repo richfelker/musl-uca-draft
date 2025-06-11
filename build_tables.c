@@ -210,7 +210,7 @@ int main()
 		secondlevel_offsets[b] = total+1;
 		if (emit_secondlevel) {
 			printf("\n\t/* %.4x: */ %u,", b<<12, min + ((len-1)<<6));
-			for (i=0; i<63; i++) {
+			for (i=0; i<64; i++) {
 				if (!(i&7)) printf("\n\t");
 				if (i<min || i>=min+len) printf("      ");
 				else printf("%5u,", lastlevel_offsets[(b<<6)+i]);
