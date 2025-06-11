@@ -118,7 +118,7 @@ wchar_t nfd_iterate(struct nfd_iterator *ci)
 			lowest_ccc_di = ci->di;
 			lowest_ccc_wc = wc;
 		}
-	} while (ccc > next_ccc);
+	} while (ccc && ccc != next_ccc);
 
 	/* If we hit the next starter without finding a new ccc,
 	 * we're done with the last sequence of non-starters and can
