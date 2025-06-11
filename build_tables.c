@@ -157,7 +157,7 @@ int main()
 					expansions[pos++] = di;
 				}
 			}
-			if (dlen<max && table[c0+min+1].d[0]) expansions[pos++] = 0;
+			if (dlen<max && table[c0+min+i].d[0]) expansions[pos++] = 0;
 		}
 		assert(pos<255);
 		block[0] = min + ((max&3)<<6);
