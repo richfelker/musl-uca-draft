@@ -54,15 +54,12 @@ int main()
 	/* flatten all decompositions */
 	for (c=0; c<0x110000; c++) {
 		if (!table[c].d1) continue;
-		if (!table[c].d2) {
-			table[c].d[0] = table[c].d1;
-			table[c].dlen = 1;
-			continue;
-		}
 		// expand
 		for (i=0, d=c; table[d].d1; d=table[d].d1) {
-			assert(i < MAX_DECOMP-1);
-			table[c].d[i++] = table[d].d2;
+			if (table[d].d2) {
+				assert(i < MAX_DECOMP-1);
+				table[c].d[i++] = table[d].d2;
+			}
 		}
 		table[c].d[i++] = d;
 		table[c].dlen = i;
