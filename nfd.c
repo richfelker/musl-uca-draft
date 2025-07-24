@@ -20,17 +20,26 @@ uint32_t decomp_iterate(struct decomp_iterator *di)
 	unsigned a, b, c;
 
 	if (!di->cur) {
-		b = *di->src;
-		if (b < 128) {
-			if (b) di->src++;
-			return b;
+		if (di->wide) {
+			wc = *(const wchar_t *)di->src;
+			di->src = (const wchar_t *)di->src + !!wc;
+			if (wc < 128)
+				return wc;
+			if (wc>=0x110000 || (wc>=0xd800 && wc<=0xdfff))
+				return 0xfffd;
+		} else {
+			b = *(const char *)di->src;
+			if (b < 128) {
+				if (b) di->src++;
+				return b;
+			}
+			int l = mbtowc(&wc, di->src, MB_LEN_MAX);
+			if (l < 0) {
+				wc = 0xfffd;
+				l = 1;
+			}
+			di->src = (const char *)di->src + l;
 		}
-		int l = mbtowc(&wc, di->src, MB_LEN_MAX);
-		if (l < 0) {
-			wc = 0xfffd;
-			l = 1;
-		}
-		di->src += l;
 
 		/* Algorithmic Hangul decomposition */
 		if (wc>=0xac00 && wc<=0xd7a3) {
@@ -98,11 +107,12 @@ uint32_t decomp_iterate(struct decomp_iterator *di)
 	return c;
 }
 
-void decomp_iterator_start(struct decomp_iterator *di, const char *src)
+void decomp_iterator_start(struct decomp_iterator *di, const void *src, int wide)
 {
 	di->src = src;
 	di->cur = 0;
 	di->rem = 0;
+	di->wide = !!wide;
 }
 
 wchar_t nfd_iterate(struct nfd_iterator *ci)
@@ -155,9 +165,9 @@ wchar_t nfd_iterate(struct nfd_iterator *ci)
 	return lowest_ccc_wc;
 }
 
-void nfd_iterator_start(struct nfd_iterator *ci, const char *src)
+void nfd_iterator_start(struct nfd_iterator *ci, const void *src, int wide)
 {
-	decomp_iterator_start(&ci->di_start, src);
+	decomp_iterator_start(&ci->di_start, src, wide);
 	ci->di = ci->di_start;
 	ci->cur_ccc = 0;
 }

@@ -5,9 +5,10 @@
 #include <stdint.h>
 
 struct decomp_iterator {
-	const char *src;
+	const void *src;
 	const void *cur;
-	unsigned char hbuf[7];
+	unsigned char hbuf[6];
+	unsigned char wide;
 	unsigned char rem;
 };
 
@@ -16,10 +17,10 @@ struct nfd_iterator {
 	int cur_ccc;
 };
 
-void decomp_iterator_start(struct decomp_iterator *, const char *);
+void decomp_iterator_start(struct decomp_iterator *, const void *, int);
 uint32_t decomp_iterate(struct decomp_iterator *);
 
-void nfd_iterator_start(struct nfd_iterator *, const char *);
+void nfd_iterator_start(struct nfd_iterator *, const void *, int);
 wchar_t nfd_iterate(struct nfd_iterator *);
 
 #endif
