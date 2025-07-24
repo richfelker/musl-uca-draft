@@ -7,8 +7,8 @@
 struct decomp_iterator {
 	const char *src;
 	const void *cur;
-	char hbuf[8];
-	size_t rem;
+	unsigned char hbuf[7];
+	unsigned char rem;
 };
 
 struct nfd_iterator {
