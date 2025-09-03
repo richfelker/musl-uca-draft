@@ -32,7 +32,7 @@ int main()
 		for (i=0; i<MAXCHARS && scanf(" %x ", ws+i)==1; i++);
 		scanf("%*[^\n]%[\n]", &dummy);
 
-		nfd_iterator_start(&ci, s);
+		nfd_iterator_start(&ci, s, 0);
 		ws[i] = 0;
 		for (j=0; j<=i; j++) {
 			wchar_t wc = nfd_iterate(&ci);
