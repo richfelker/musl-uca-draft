@@ -8,13 +8,20 @@ by NLnet and the NGI Zero Core Fund.
 
 ## Runtime code
 
-`nfd.c` and `nfd.h` provide n iterator based implementation of Unicode
-NFD, using compact tables generated from `UnicodeData.txt`.
+`nfd.c` and `nfd.h` provide an iterator based implementation of
+Unicode NFD, using compact tables generated from `UnicodeData.txt`.
+
+`collate.c` and `collate.h` provide an iterator for the sequence of
+collation elements associated with an input string.
+
+`lookup.c` and `lookup.h` implement the integer-keyed multi-level
+table data structure used for collation and all of the new
+memory-mapped locale data image format.
 
 
-## Table generation
+## Normalization table generation
 
-The `build_tables.c` program takes `UnicodeData.txt` on stdin and
+The `build_decomp.c` program takes `UnicodeData.txt` on stdin and
 produces as output the contents of `decomp.h` for use by the above
 `nfd.c`. The multi-level table in the output maps codepoint values for
 decomposable and non-starter characters to fully flattened decomposed
