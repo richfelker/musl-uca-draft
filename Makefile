@@ -13,6 +13,8 @@ decomp.h: UnicodeData.txt build_decomp
 build_decomp: build_decomp.c
 	$(CC_FOR_BUILD) $(CFLAGS_FOR_BUILD) -o $@ $<
 
+nfd.o: decomp.h
+
 demo_OBJS = demo.o collate.o nfd.o lookup.o strxfrm.o
 demo: $(demo_OBJS)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $($@_OBJS)
