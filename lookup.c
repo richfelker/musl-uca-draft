@@ -1,25 +1,22 @@
 
 
-static unsigned get8(const char *b0)
+static unsigned get8(const unsigned char *b)
 {
-	const unsigned char *b = (const void *)b0;
 	return b[0];
 }
 
-static unsigned get16(const char *b0)
+static unsigned get16(const unsigned char *b)
 {
-	const unsigned char *b = (const void *)b0;
 	return (b[0]<<8) | b[1];
 }
 
-static unsigned get32(const char *b0)
+static unsigned get32(const unsigned char *b)
 {
-	const unsigned char *b = (const void *)b0;
 	return ((unsigned)b[0]<<24) | (b[1]<<16) | (b[2]<<8) | b[3];
 }
 
 
-const char *lookup(const char *ld, int key)
+const void *lookup(const unsigned char *ld, int key)
 {
 	unsigned shift, scale, cnt, val, x, k = key;
 
@@ -45,10 +42,10 @@ const char *lookup(const char *ld, int key)
 	return ld;
 }
 
-const char *lookup_path(const char *ld, const int *path)
+const void *lookup_path(const unsigned char *ld, const int *path)
 {
 	for (int i=0; i<path[0]; i++) {
-		const char *next = lookup(ld, path[i+1]);
+		const unsigned char *next = lookup(ld, path[i+1]);
 		if (!next) return 0;
 		ld = next;
 	}
