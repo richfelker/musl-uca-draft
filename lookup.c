@@ -1,4 +1,4 @@
-
+#include "lookup.h"
 
 static unsigned get8(const unsigned char *b)
 {
@@ -16,7 +16,7 @@ static unsigned get32(const unsigned char *b)
 }
 
 
-const void *lookup(const unsigned char *ld, int key)
+const void *ikmlt_lookup(const unsigned char *ld, int key)
 {
 	unsigned shift, scale, cnt, val, x, k = key;
 
@@ -42,10 +42,10 @@ const void *lookup(const unsigned char *ld, int key)
 	return ld;
 }
 
-const void *lookup_path(const unsigned char *ld, const int *path)
+const void *ikmlt_lookup_path(const unsigned char *ld, const int *path)
 {
 	for (int i=0; i<path[0]; i++) {
-		const unsigned char *next = lookup(ld, path[i+1]);
+		const unsigned char *next = ikmlt_lookup(ld, path[i+1]);
 		if (!next) return 0;
 		ld = next;
 	}
